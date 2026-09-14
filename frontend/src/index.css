@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-slate-900 antialiased;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Shimmer en botón primario */
+  .btn-shimmer {
+    background: linear-gradient(
+      110deg,
+      #4338ca 30%,
+      #6366f1 50%,
+      #4338ca 70%
+    );
+    background-size: 300% 100%;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  /* Card con glow suave */
+  .card-glow {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px -4px rgba(79,70,229,0.08);
+    transition: box-shadow 0.25s ease;
+  }
+  .card-glow:hover {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 28px -4px rgba(79,70,229,0.16);
+  }
+
+  /* Texto gradiente indigo→cyan */
+  .text-gradient {
+    background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Panel decorativo hero */
+  .hero-panel {
+    background: radial-gradient(ellipse 70% 70% at 60% 40%, #eef2ff 0%, #e0f2fe 60%, #f0fdff 100%);
+  }
+
+  /* Fondo suave para páginas internas */
+  .page-bg {
+    background: linear-gradient(160deg, #f8faff 0%, #f0fdff 100%);
+  }
+}

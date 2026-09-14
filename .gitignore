@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+*.db
+
+# Modelo entrenado (no versionar)
+backend/app/ml/weights/*.pt
+
+# Variables de entorno
+.env
+frontend/.env.local
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
