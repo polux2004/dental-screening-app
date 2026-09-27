@@ -3,7 +3,6 @@ from pydantic import BaseModel, Field
 
 
 class PhotoType(str, Enum):
-    frontal    = "frontal"     # gingivitis
     mandibular = "mandibular"  # caries
     maxilar    = "maxilar"     # caries
 
@@ -11,8 +10,6 @@ class PhotoType(str, Enum):
 class Diagnosis(str, Enum):
     ninguna = "ninguna"
     caries = "caries"
-    gingivitis = "gingivitis"
-    ambas = "ambas"
 
 
 class BoundingBox(BaseModel):
@@ -31,13 +28,3 @@ class DetectionResponse(BaseModel):
     boxes: list[BoundingBox]
     image_width: int
     image_height: int
-
-
-class SaveResultRequest(BaseModel):
-    detection_id: int
-    notes: str | None = Field(default=None, max_length=500)
-
-
-class SaveResultResponse(BaseModel):
-    id: int
-    saved: bool

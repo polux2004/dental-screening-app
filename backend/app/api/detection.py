@@ -1,32 +1,32 @@
 import json
+from typing import Annotated
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, UploadFile
 
 from app.dependencies import DBSession
-from app.ml.model_loader import get_caries_model, get_gingivitis_model
+from app.config import settings
+from app.ml.model_loader import get_caries_model
 from app.schemas.detection import (
     DetectionResponse,
     PhotoType,
-    SaveResultRequest,
-    SaveResultResponse,
 )
-from app.services.inference_service import run_detection, GINGIVITIS_PHOTO_TYPES
+from app.services.inference_service import run_detection
 from app.db.models import DetectionResult
+from app.utils.exceptions import ImageTooLargeError
 
 router = APIRouter(prefix="/detect", tags=["detection"])
 
 
 @router.post("/", response_model=DetectionResponse)
 async def detect(
-    photo_type: PhotoType = Form(...),
-    file: UploadFile = File(...),
-    db: DBSession = None,
+    photo_type: Annotated[PhotoType, Form()],
+    file: Annotated[UploadFile, File()],
+    db: DBSession,
 ):
-    # Seleccionar modelo según tipo de foto
-    model = get_gingivitis_model() if photo_type.value in GINGIVITIS_PHOTO_TYPES else get_caries_model()
-
-    image_bytes = await file.read()
-    result = run_detection(image_bytes, photo_type.value, model)
+    image_bytes = await file.read(settings.max_upload_bytes + 1)
+    if len(image_bytes) > settings.max_upload_bytes:
+        raise ImageTooLargeError(settings.max_upload_bytes)
+    result = run_detection(image_bytes, photo_type.value, get_caries_model())
 
     record = DetectionResult(
         photo_type=result.photo_type,
@@ -40,17 +40,3 @@ async def detect(
     db.refresh(record)
 
     return DetectionResponse(id=record.id, **result.model_dump(exclude={"id"}))
-
-
-@router.post("/save", response_model=SaveResultResponse)
-async def save_result(
-    payload: SaveResultRequest,
-    db: DBSession,
-):
-    record = db.get(DetectionResult, payload.detection_id)
-    if record is None:
-        raise HTTPException(status_code=404, detail="Resultado no encontrado.")
-    record.notes = payload.notes
-    db.commit()
-    db.refresh(record)
-    return SaveResultResponse(id=record.id, saved=True)

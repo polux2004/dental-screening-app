@@ -1,6 +1,5 @@
 const COLOR_MAP = {
   caries: '#ef4444',     // rojo
-  gingivitis: '#f97316', // naranja
 }
 
 const DEFAULT_COLOR = '#3b82f6'
@@ -17,8 +16,7 @@ export default function BoundingBoxOverlay({ boxes = [], imageWidth, imageHeight
   return (
     <svg
       viewBox={`0 0 ${imageWidth} ${imageHeight}`}
-      className="absolute inset-0 w-full h-full"
-      style={{ pointerEvents: 'none' }}
+      className="absolute inset-0 w-full h-full pointer-events-none"
     >
       {boxes.map((box, i) => {
         const color = COLOR_MAP[box.label] ?? DEFAULT_COLOR

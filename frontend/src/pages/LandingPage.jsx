@@ -1,110 +1,110 @@
 import { useNavigate } from 'react-router-dom'
-import { Camera, ScanLine, ClipboardList, ChevronRight, Smile, ShieldCheck } from 'lucide-react'
-import Button from '../components/ui/Button'
+import { Activity, ArrowRight, Camera, ClipboardCheck, Heart, Image, ScanSearch, ShieldCheck, Sparkles } from 'lucide-react'
 
-const features = [
-  {
-    icon: Camera,
-    title: 'Análisis por foto',
-    desc: 'Sube una foto dental desde tu teléfono y obtén resultados en segundos.',
-    color: 'bg-indigo-50 text-indigo-600',
-  },
-  {
-    icon: ScanLine,
-    title: 'Detección de caries',
-    desc: 'Identifica indicios visuales en cinco ángulos dentales distintos.',
-    color: 'bg-cyan-50 text-cyan-600',
-  },
-  {
-    icon: ClipboardList,
-    title: 'Resultado claro',
-    desc: 'Visualiza las zonas detectadas y guarda el resultado para tu consulta.',
-    color: 'bg-indigo-50 text-indigo-600',
-  },
+const steps = [
+  { icon: Camera, number: '01', title: 'Elige un análisis', description: 'Consulta qué análisis están disponibles y qué tipo de imagen requiere cada uno.' },
+  { icon: Image, number: '02', title: 'Revisamos la calidad', description: 'Comprobamos el brillo, la nitidez y el tamaño antes de procesarla.' },
+  { icon: ScanSearch, number: '03', title: 'Explora el resultado', description: 'Observa los posibles hallazgos señalados directamente sobre la imagen.' },
 ]
 
 export default function LandingPage() {
   const navigate = useNavigate()
+  const start = () => navigate('/seleccion')
 
   return (
-    <main className="min-h-screen bg-white flex flex-col">
+    <main className="landing-page">
+      <div className="landing-dark">
+        <header className="landing-header landing-container">
+          <a className="landing-brand" href="/" aria-label="Dental Screening, ir al inicio">
+            <span className="landing-brand-icon"><Heart size={20} strokeWidth={2.4} /></span>
+            <span><strong>Dental Screening</strong><small>Orientación dental visual</small></span>
+          </a>
+          <nav className="landing-nav" aria-label="Navegación principal">
+            <a href="#como-funciona">Cómo funciona</a>
+            <a href="#que-analiza">Qué analiza</a>
+            <a href="#sobre-el-proyecto">Sobre el proyecto</a>
+          </nav>
+          <button className="landing-nav-cta" onClick={start}>Comenzar <ArrowRight size={15} /></button>
+        </header>
 
-      {/* ── Hero split ─────────────────────────────────────────────────────── */}
-      <section className="flex-1 grid grid-cols-1 md:grid-cols-2 min-h-[82vh]">
-
-        {/* Texto */}
-        <div className="flex flex-col justify-center px-8 py-16 md:px-14 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 leading-tight mb-4">
-            Screening dental{' '}
-            <span className="text-gradient">inteligente</span>
-          </h1>
-
-          <p className="text-slate-500 text-base leading-relaxed mb-8 max-w-sm">
-            Detecta indicios de caries y gingivitis en fotografías dentales tomadas con tu smartphone.
-            Rápido, simple y orientativo.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-3 max-w-xs">
-            <Button onClick={() => navigate('/seleccion')}>
-              Comenzar análisis
-              <ChevronRight className="w-4 h-4" />
-            </Button>
+        <section className="landing-hero landing-container" aria-labelledby="landing-title">
+          <div className="landing-hero-copy">
+            <span className="landing-eyebrow"><Sparkles size={15} /> Una forma más clara de observar</span>
+            <h1 id="landing-title">Una nueva mirada a tu <span>salud dental.</span></h1>
+            <p>Un espacio para explorar posibles indicios de caries y gingivitis en fotografías dentales. El análisis de caries ya está disponible; el de gingivitis sigue en desarrollo.</p>
+            <div className="landing-actions">
+              <button className="landing-primary" onClick={start}>Comenzar análisis <ArrowRight size={18} /></button>
+              <a className="landing-secondary" href="#como-funciona">Conoce el proceso</a>
+            </div>
+            <div className="landing-hero-note"><ShieldCheck size={20} /><span>Resultado orientativo. No reemplaza una evaluación odontológica.</span></div>
           </div>
+          <div className="landing-hero-visual">
+            <img src="/images/dental-check.png" alt="Dentista examinando los dientes de una paciente" className="landing-hero-image" />
+            <div className="landing-photo-badge">
+              <span className="landing-photo-badge-icon"><ScanSearch size={21} /></span>
+              <span className="landing-photo-badge-status"><strong>Caries · disponible</strong><strong>Gingivitis · en desarrollo</strong></span>
+            </div>
+          </div>
+        </section>
+      </div>
 
-          <p className="text-xs text-slate-400 mt-6 flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-            No reemplaza el diagnóstico de un profesional de salud.
-          </p>
+      <section className="landing-story landing-container" id="que-analiza" aria-labelledby="story-title">
+        <div className="landing-story-visual">
+          <img src="/images/dental-review.png" alt="Odontólogo mostrando una radiografía dental a una paciente" loading="lazy" />
+          <span className="landing-story-tag"><ClipboardCheck size={17} /> Información para orientarte</span>
         </div>
+        <div className="landing-story-copy">
+          <span className="landing-section-label">CONOCE LA HERRAMIENTA</span>
+          <h2 id="story-title">Dos áreas de análisis, una visión más completa.</h2>
+          <p>Dental Screening explora la salud dental a partir de fotografías. Cada área tiene su propio estado de desarrollo, mostrado con claridad antes de comenzar.</p>
+          <div className="landing-analysis-grid">
+            <article className="landing-analysis-card">
+              <ScanSearch size={21} aria-hidden="true" />
+              <h3>Caries</h3>
+              <p>Analiza fotos mandibulares o maxilares y señala posibles hallazgos sobre la imagen.</p>
+              <span>Disponible</span>
+            </article>
+            <article className="landing-analysis-card">
+              <Activity size={21} aria-hidden="true" />
+              <h3>Gingivitis</h3>
+              <p>Esta área está en desarrollo; aún se están definiendo su método y los requisitos de imagen.</p>
+              <span>En desarrollo</span>
+            </article>
+          </div>
+          <button className="landing-text-link" onClick={start}>Explorar el análisis <ArrowRight size={17} /></button>
+        </div>
+      </section>
 
-        {/* Panel decorativo */}
-        <div className="hidden md:flex hero-panel items-center justify-center relative overflow-hidden">
-          <div className="flex flex-col items-center gap-6 animate-fade-in">
-            <div className="w-28 h-28 rounded-3xl bg-white/70 backdrop-blur-sm shadow-xl border border-white flex items-center justify-center">
-              <Smile className="w-14 h-14 text-indigo-500" strokeWidth={1.2} />
-            </div>
-            <div className="flex gap-4">
-              {[Camera, ScanLine, ClipboardList].map((Icon, i) => (
-                <div key={i} className="w-12 h-12 rounded-2xl bg-white/70 backdrop-blur-sm shadow-md border border-white flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-cyan-500" strokeWidth={1.5} />
-                </div>
-              ))}
-            </div>
-            <p className="text-sm font-medium text-slate-500 bg-white/60 px-4 py-2 rounded-full border border-white/80">
-              Diseñado para 10 a 24 años
-            </p>
+      <section className="landing-process" id="como-funciona" aria-labelledby="process-title">
+        <div className="landing-container">
+          <div className="landing-process-heading">
+            <span className="landing-section-label">UN PROCESO SIMPLE</span>
+            <h2 id="process-title">Tres pasos para comenzar</h2>
+            <p>Una experiencia guiada desde la elección de la foto hasta la lectura del resultado.</p>
+          </div>
+          <div className="landing-steps">
+            {steps.map(({ icon: Icon, number, title, description }, index) => (
+              <article className={`landing-step ${index === 1 ? 'landing-step-featured' : ''}`} key={number}>
+                <div className="landing-step-top"><span className="landing-step-icon"><Icon size={25} strokeWidth={1.8} /></span><span className="landing-step-number">{number}</span></div>
+                <h3>{title}</h3><p>{description}</p>
+              </article>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Feature cards ──────────────────────────────────────────────────── */}
-      <section className="bg-slate-50 border-t border-slate-100 px-6 py-12">
-        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest text-center mb-8">
-          Qué ofrecemos
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-2xl mx-auto animate-slide-up">
-          {features.map((f) => {
-            const Icon = f.icon
-            return (
-              <div key={f.title} className="bg-white rounded-2xl border border-slate-100 p-5 card-glow flex flex-col gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${f.color}`}>
-                  <Icon className="w-4 h-4" strokeWidth={1.8} />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-800 mb-1">{f.title}</p>
-                  <p className="text-xs text-slate-500 leading-relaxed">{f.desc}</p>
-                </div>
-              </div>
-            )
-          })}
+      <section className="landing-end" id="sobre-el-proyecto">
+        <div className="landing-container landing-end-inner">
+          <div>
+            <span className="landing-section-label">SOBRE EL PROYECTO</span>
+            <h2>Tecnología para observar mejor, con responsabilidad.</h2>
+            <p>Herramienta académica de apoyo visual para personas de 10 a 24 años. Los resultados son preliminares y siempre deben interpretarse con un profesional de salud.</p>
+          </div>
+          <button className="landing-primary" onClick={start}>Empezar ahora <ArrowRight size={18} /></button>
         </div>
       </section>
 
-      <footer className="px-6 py-4 text-center border-t border-slate-100">
-        <p className="text-xs text-slate-400">
-          Esta herramienta <strong className="text-slate-500">no reemplaza</strong> el diagnóstico de un profesional de salud.
-        </p>
-      </footer>
+      <footer className="landing-footer"><div className="landing-container landing-footer-inner"><span>© Dental Screening</span><span>Un análisis orientativo no constituye un diagnóstico médico.</span></div></footer>
     </main>
   )
 }

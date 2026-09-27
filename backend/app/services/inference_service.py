@@ -1,24 +1,15 @@
+import logging
+
 import cv2
 import numpy as np
 
-from app.ml.model_loader import ModelLoader, get_caries_model, get_gingivitis_model
+from app.config import settings
+from app.ml.model_loader import ModelLoader
 from app.schemas.detection import BoundingBox, DetectionResponse
 from app.services.image_validator import validate_image
-from app.utils.exceptions import InferenceError
+from app.utils.exceptions import ImageValidationError, InferenceError, ModelNotLoadedError
 
-# Foto frontal → gingivitis; mandibular/maxilar → caries
-GINGIVITIS_PHOTO_TYPES = {"frontal"}
-
-CARIES_LABEL_MAP: dict[int, str] = {
-    0: "caries",  # primary_caries
-    1: "caries",  # permanent_caries
-}
-
-# Ajustar cuando llegue el modelo de gingivitis
-GINGIVITIS_LABEL_MAP: dict[int, str] = {
-    0: "gingivitis",
-}
-
+logger = logging.getLogger(__name__)
 
 def run_detection(
     image_bytes: bytes,
@@ -26,59 +17,45 @@ def run_detection(
     model: ModelLoader,
 ) -> DetectionResponse:
     nparr = np.frombuffer(image_bytes, np.uint8)
-    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    try:
+        image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    except cv2.error as exc:
+        raise ImageValidationError("El archivo no es una imagen válida.") from exc
     if image is None:
-        raise InferenceError("No se pudo decodificar la imagen.")
+        raise ImageValidationError("El archivo no es una imagen válida.")
 
     validate_image(image)
 
-    is_gingivitis = photo_type in GINGIVITIS_PHOTO_TYPES
-    label_map = GINGIVITIS_LABEL_MAP if is_gingivitis else CARIES_LABEL_MAP
-
     h, w = image.shape[:2]
 
-    # Si el modelo no está disponible aún, devolver resultado vacío
+    # La ausencia de un modelo no equivale a una imagen sin hallazgos.
     if not model.available:
-        return DetectionResponse(
-            photo_type=photo_type,
-            diagnosis="ninguna",
-            boxes=[],
-            image_width=w,
-            image_height=h,
-        )
+        raise ModelNotLoadedError()
 
     try:
-        results = model.predict(image)
+        prediction = model.predict(image)
     except Exception as exc:
-        raise InferenceError(str(exc)) from exc
+        logger.exception("Falló la inferencia de caries")
+        raise InferenceError() from exc
 
     boxes: list[BoundingBox] = []
-    detected_classes: set[str] = set()
-
-    if results and results[0].boxes is not None:
-        for box in results[0].boxes:
-            cls_id = int(box.cls[0])
-            label = label_map.get(cls_id, f"clase_{cls_id}")
-            conf = float(box.conf[0])
-            x1, y1, x2, y2 = box.xyxy[0].tolist()
-            boxes.append(
-                BoundingBox(
-                    label=label,
-                    confidence=round(conf, 4),
-                    x1=round(x1), y1=round(y1),
-                    x2=round(x2), y2=round(y2),
-                )
+    for coords, class_id, confidence in zip(
+        prediction["boxes"], prediction["labels"], prediction["scores"], strict=True
+    ):
+        if int(class_id) != 1 or float(confidence) < settings.conf_threshold:
+            continue
+        x1, y1, x2, y2 = (round(value) for value in coords.tolist())
+        boxes.append(
+            BoundingBox(
+                label="caries",
+                confidence=round(float(confidence), 4),
+                x1=x1, y1=y1, x2=x2, y2=y2,
             )
-            detected_classes.add(label)
-
-    if is_gingivitis:
-        diagnosis = "gingivitis" if detected_classes else "ninguna"
-    else:
-        diagnosis = "caries" if detected_classes else "ninguna"
+        )
 
     return DetectionResponse(
         photo_type=photo_type,
-        diagnosis=diagnosis,
+        diagnosis="caries" if boxes else "ninguna",
         boxes=boxes,
         image_width=w,
         image_height=h,

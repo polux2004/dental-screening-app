@@ -17,8 +17,10 @@ frontend/.env.local
 # Node
 frontend/node_modules/
 frontend/dist/
+/.local-tests/
 
 # IDEs
+.claude/
 .vscode/
 .idea/
 *.swp

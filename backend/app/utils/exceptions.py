@@ -17,14 +17,19 @@ class ImageValidationError(DentalScreeningError):
         self.suggestions = suggestions or []
 
 
+class ImageTooLargeError(DentalScreeningError):
+    def __init__(self, max_bytes: int):
+        super().__init__(f"La imagen supera el límite de {max_bytes // (1024 * 1024)} MB.", status_code=413)
+
+
 class ModelNotLoadedError(DentalScreeningError):
-    def __init__(self):
-        super().__init__("El modelo no está disponible", status_code=503)
+    def __init__(self, message: str = "El modelo de caries no está disponible"):
+        super().__init__(message, status_code=503)
 
 
 class InferenceError(DentalScreeningError):
-    def __init__(self, detail: str):
-        super().__init__(f"Error durante la inferencia: {detail}", status_code=500)
+    def __init__(self):
+        super().__init__("No se pudo completar el análisis de la imagen.", status_code=500)
 
 
 # ── Handlers globales ────────────────────────────────────────────────────────

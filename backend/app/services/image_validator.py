@@ -25,8 +25,20 @@ def validate_image(image: np.ndarray) -> None:
     elif brightness > settings.max_brightness:
         suggestions.append("La imagen está sobreexpuesta. Aleja la fuente de luz o evita el flash directo.")
 
-    # ── Nitidez (varianza del Laplaciano) ────────────────────────────────────
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Comparar fotos a una resolución común evita penalizar imágenes grandes.
+    height, width = image.shape[:2]
+    longest_side = max(height, width)
+    focus_image = image
+    if longest_side > 1024:
+        scale = 1024 / longest_side
+        focus_image = cv2.resize(
+            image,
+            (round(width * scale), round(height * scale)),
+            interpolation=cv2.INTER_AREA,
+        )
+
+    # ── Nitidez (varianza del Laplaciano a 1024 px como máximo) ──────────────
+    gray = cv2.cvtColor(focus_image, cv2.COLOR_BGR2GRAY)
     blur_score = float(cv2.Laplacian(gray, cv2.CV_64F).var())
 
     logger.info(

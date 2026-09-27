@@ -1,5 +1,5 @@
-import { useLocation, useNavigate } from 'react-router-dom'
-import { ScanLine, Home, CheckCircle, AlertCircle, Scan, Activity } from 'lucide-react'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { ScanLine, Home, CheckCircle, AlertCircle, Scan } from 'lucide-react'
 import BoundingBoxOverlay from '../components/BoundingBoxOverlay'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
@@ -7,13 +7,11 @@ import Card from '../components/ui/Card'
 const DIAGNOSIS_LABEL = {
   ninguna:    'Sin hallazgos',
   caries:     'Caries detectada',
-  gingivitis: 'Gingivitis detectada',
 }
 
 const DIAGNOSIS_STYLE = {
   ninguna:    { chip: 'bg-emerald-50 text-emerald-700 border-emerald-100', icon: CheckCircle },
   caries:     { chip: 'bg-red-50 text-red-700 border-red-100',            icon: AlertCircle },
-  gingivitis: { chip: 'bg-orange-50 text-orange-700 border-orange-100',   icon: AlertCircle },
 }
 
 function ResultPanel({ title, icon: Icon, iconStyle, result, imageUrl }) {
@@ -54,55 +52,31 @@ function ResultPanel({ title, icon: Icon, iconStyle, result, imageUrl }) {
 export default function ResultsPage() {
   const navigate = useNavigate()
   const { state } = useLocation()
-  if (!state?.cariesResult && !state?.gingivitisResult) {
-    navigate('/')
-    return null
-  }
+  if (!state?.result) return <Navigate to="/" replace />
 
-  const { analysisType, cariesResult, cariesImageUrl, gingivitisResult, gingivitisImageUrl } = state
+  const { result, imageUrl } = state
 
   return (
     <main className="min-h-screen page-bg flex flex-col items-center p-4 gap-4 animate-fade-in">
       <Card className="w-full max-w-lg">
 
         <div className="flex items-center gap-2 mb-1">
-          <ScanLine className="w-4 h-4 text-indigo-400" strokeWidth={1.5} />
-          <p className="text-xs font-semibold text-indigo-400 uppercase tracking-wide">Resultado del análisis</p>
+          <ScanLine className="w-4 h-4 text-teal-400" strokeWidth={1.5} />
+          <p className="text-xs font-semibold text-teal-400 uppercase tracking-wide">Resultado del análisis</p>
         </div>
         <h1 className="text-xl font-bold text-slate-900 mb-6">
-          {analysisType === 'ambas' ? 'Caries y Gingivitis' : analysisType === 'gingivitis' ? 'Gingivitis' : 'Caries'}
+          Caries
         </h1>
 
-        {/* Panel caries */}
-        {cariesResult && (
-          <div className="mb-6">
-            <ResultPanel
-              title="Caries"
-              icon={Scan}
-              iconStyle={{ bg: 'bg-indigo-50', border: 'border-indigo-100', text: 'text-indigo-600' }}
-              result={cariesResult}
-              imageUrl={cariesImageUrl}
-            />
-          </div>
-        )}
-
-        {/* Divisor entre paneles */}
-        {cariesResult && gingivitisResult && (
-          <div className="border-t border-slate-100 my-2 mb-6" />
-        )}
-
-        {/* Panel gingivitis */}
-        {gingivitisResult && (
-          <div className="mb-6">
-            <ResultPanel
-              title="Gingivitis"
-              icon={Activity}
-              iconStyle={{ bg: 'bg-cyan-50', border: 'border-cyan-100', text: 'text-cyan-600' }}
-              result={gingivitisResult}
-              imageUrl={gingivitisImageUrl}
-            />
-          </div>
-        )}
+        <div className="mb-6">
+          <ResultPanel
+            title="Caries"
+            icon={Scan}
+            iconStyle={{ bg: 'bg-teal-50', border: 'border-teal-100', text: 'text-teal-600' }}
+            result={result}
+            imageUrl={imageUrl}
+          />
+        </div>
 
         <p className="text-xs text-slate-400 mb-5">
           Resultado orientativo. No constituye diagnóstico médico.
