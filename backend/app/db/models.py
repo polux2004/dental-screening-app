@@ -10,6 +10,9 @@ class DetectionResult(Base):
     __tablename__ = "detection_results"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    analysis_type: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="caries", server_default="caries"
+    )
     photo_type: Mapped[str] = mapped_column(String(20), nullable=False)
     diagnosis: Mapped[str] = mapped_column(String(20), nullable=False)
     # JSON serializado de los bounding boxes

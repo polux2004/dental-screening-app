@@ -31,7 +31,7 @@ export default function LandingPage() {
           <div className="landing-hero-copy">
             <span className="landing-eyebrow"><Sparkles size={15} /> Una forma más clara de observar</span>
             <h1 id="landing-title">Una nueva mirada a tu <span>salud dental.</span></h1>
-            <p>Un espacio para explorar posibles indicios de caries y gingivitis en fotografías dentales. El análisis de caries ya está disponible; el de gingivitis sigue en desarrollo.</p>
+            <p>Un espacio para explorar posibles indicios de caries y gingivitis en fotografías dentales. Elige el análisis y sube una imagen para comenzar.</p>
             <div className="landing-actions">
               <button className="landing-primary" onClick={start}>Comenzar análisis <ArrowRight size={18} /></button>
               <a className="landing-secondary" href="#como-funciona">Conoce el proceso</a>
@@ -42,7 +42,7 @@ export default function LandingPage() {
             <img src="/images/dental-check.png" alt="Dentista examinando los dientes de una paciente" className="landing-hero-image" />
             <div className="landing-photo-badge">
               <span className="landing-photo-badge-icon"><ScanSearch size={21} /></span>
-              <span className="landing-photo-badge-status"><strong>Caries · disponible</strong><strong>Gingivitis · en desarrollo</strong></span>
+              <span className="landing-photo-badge-status"><strong>Caries · disponible</strong><strong>Gingivitis · disponible</strong></span>
             </div>
           </div>
         </section>
@@ -67,8 +67,8 @@ export default function LandingPage() {
             <article className="landing-analysis-card">
               <Activity size={21} aria-hidden="true" />
               <h3>Gingivitis</h3>
-              <p>Esta área está en desarrollo; aún se están definiendo su método y los requisitos de imagen.</p>
-              <span>En desarrollo</span>
+              <p>Analiza una foto frontal y señala posibles hallazgos en las encías.</p>
+              <span>Disponible</span>
             </article>
           </div>
           <button className="landing-text-link" onClick={start}>Explorar el análisis <ArrowRight size={17} /></button>

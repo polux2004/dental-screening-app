@@ -1,5 +1,6 @@
 const COLOR_MAP = {
   caries: '#ef4444',     // rojo
+  gingivitis: '#e11d48',
 }
 
 const DEFAULT_COLOR = '#3b82f6'
@@ -24,9 +25,17 @@ export default function BoundingBoxOverlay({ boxes = [], imageWidth, imageHeight
         const h = box.y2 - box.y1
         return (
           <g key={i}>
+            {box.polygon?.length >= 3 && (
+              <polygon
+                points={box.polygon.map((point) => `${point.x},${point.y}`).join(' ')}
+                fill={color} fillOpacity="0.28" stroke={color} strokeWidth="2"
+              />
+            )}
             <rect
               x={box.x1} y={box.y1} width={w} height={h}
-              fill="none" stroke={color} strokeWidth="2"
+              fill="none" stroke={color}
+              strokeWidth={box.label === 'caries' ? 5 : 2}
+              vectorEffect={box.label === 'caries' ? 'non-scaling-stroke' : undefined}
             />
             <rect
               x={box.x1} y={box.y1 - 18} width={w < 80 ? 80 : w} height={18}

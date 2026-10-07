@@ -16,13 +16,13 @@ const options = [
   },
   {
     id: 'gingivitis',
-    available: false,
+    available: true,
     icon: Activity,
     title: 'Gingivitis',
-    desc: 'Área en desarrollo para explorar posibles indicios de gingivitis.',
-    details: 'Método y requisitos de imagen por definir',
-    status: 'En desarrollo',
-    color: 'cursor-not-allowed',
+    desc: 'Explora posibles indicios de gingivitis en una fotografía de dientes y encías.',
+    details: 'Solo foto frontal',
+    status: 'Disponible',
+    color: 'hover:border-cyan-300 hover:bg-cyan-50/40 cursor-pointer',
     iconBg: 'bg-cyan-50 text-cyan-500',
     badge: 'bg-cyan-50 text-cyan-600 border-cyan-100',
   },
@@ -31,8 +31,8 @@ const options = [
 export default function SelectionPage() {
   const navigate = useNavigate()
 
-  function handleSelect() {
-    navigate('/captura')
+  function handleSelect(analysisType) {
+    navigate(`/captura?analysis=${analysisType}`)
   }
 
   return (
@@ -50,7 +50,7 @@ export default function SelectionPage() {
             return (
               <button
                 key={opt.id}
-                onClick={handleSelect}
+                onClick={() => handleSelect(opt.id)}
                 disabled={!opt.available}
                 className={`w-full min-h-40 text-left bg-white border-2 border-slate-100 rounded-2xl p-5 card-glow transition-all duration-200 ${opt.color}`}
               >

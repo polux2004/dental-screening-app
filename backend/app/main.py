@@ -6,10 +6,12 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api import detection, health
 from app.config import settings
+from app.db.migrations import ensure_analysis_type_column
 from app.db.models import DetectionResult  # noqa: F401 — registra el modelo en Base
 from app.db.session import Base, engine
 from app.middleware.security_headers import SecurityHeadersMiddleware
 from app.middleware.upload_limit import UploadLimitMiddleware
+from app.ml.gingivitis_loader import get_gingivitis_model
 from app.ml.model_loader import get_caries_model
 from app.utils.exceptions import (
     DentalScreeningError,
@@ -24,8 +26,10 @@ logging.basicConfig(level=logging.INFO)
 async def lifespan(app: FastAPI):
     # Crear tablas (dev — en prod usar Alembic)
     Base.metadata.create_all(bind=engine)
-    # Cargar el modelo de caries al inicio.
+    ensure_analysis_type_column()
+    # Cargar los modelos al inicio.
     get_caries_model()
+    get_gingivitis_model()
     yield
 
 

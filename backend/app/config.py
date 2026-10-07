@@ -12,12 +12,13 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./dental_screening.db"
 
     model_path: str = "app/ml/weights/best.pt"
+    gingivitis_model_path: str = "app/ml/weights/best_gingivitis.pt"
     conf_threshold: float = 0.25
     max_upload_bytes: int = 10 * 1024 * 1024
 
     # Validación de imagen
-    min_brightness: float = 50.0
-    max_brightness: float = 220.0
+    min_brightness: float = 85.0
+    max_brightness: float = 245.0
     blur_threshold: float = 30.0   # Laplaciano tras reducir el lado mayor a 1024 px
 
     cors_origins: list[str] = ["http://localhost:5173"]

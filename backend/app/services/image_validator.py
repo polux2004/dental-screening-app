@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -7,6 +8,23 @@ from app.config import settings
 from app.utils.exceptions import ImageValidationError
 
 logger = logging.getLogger(__name__)
+
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
+JPEG_SIGNATURE = b"\xff\xd8\xff"
+
+
+def validate_file_format(filename: str | None, image_bytes: bytes) -> None:
+    """Exige una extensión y una firma real de PNG o JPEG."""
+    suffix = Path(filename or "").suffix.lower()
+    valid = (
+        (suffix == ".png" and image_bytes.startswith(PNG_SIGNATURE))
+        or (suffix in {".jpg", ".jpeg"} and image_bytes.startswith(JPEG_SIGNATURE))
+    )
+    if not valid:
+        raise ImageValidationError(
+            message="Solo se aceptan imágenes JPG, JPEG o PNG.",
+            suggestions=["Selecciona una imagen JPG, JPEG o PNG válida."],
+        )
 
 
 def validate_image(image: np.ndarray) -> None:

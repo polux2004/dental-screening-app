@@ -16,13 +16,15 @@ api.interceptors.response.use(
 /**
  * Envía la imagen al backend para detección.
  * @param {File} file
- * @param {string} photoType  — mandibular o maxilar
+ * @param {string} photoType  — frontal, mandibular o maxilar
+ * @param {string} analysisType — caries o gingivitis
  * @returns {Promise<DetectionResponse>}
  */
-export async function detectImage(file, photoType) {
+export async function detectImage(file, photoType, analysisType = 'caries') {
   const form = new FormData()
   form.append('file', file)
   form.append('photo_type', photoType)
+  form.append('analysis_type', analysisType)
   const { data } = await api.post('/detect/', form, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })

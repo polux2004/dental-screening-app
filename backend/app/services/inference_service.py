@@ -4,8 +4,9 @@ import cv2
 import numpy as np
 
 from app.config import settings
+from app.ml.gingivitis_loader import GingivitisModelLoader
 from app.ml.model_loader import ModelLoader
-from app.schemas.detection import BoundingBox, DetectionResponse
+from app.schemas.detection import AnalysisType, BoundingBox, DetectionResponse, PolygonPoint
 from app.services.image_validator import validate_image
 from app.utils.exceptions import ImageValidationError, InferenceError, ModelNotLoadedError
 
@@ -14,7 +15,8 @@ logger = logging.getLogger(__name__)
 def run_detection(
     image_bytes: bytes,
     photo_type: str,
-    model: ModelLoader,
+    analysis_type: AnalysisType,
+    model: ModelLoader | GingivitisModelLoader,
 ) -> DetectionResponse:
     nparr = np.frombuffer(image_bytes, np.uint8)
     try:
@@ -30,14 +32,29 @@ def run_detection(
 
     # La ausencia de un modelo no equivale a una imagen sin hallazgos.
     if not model.available:
-        raise ModelNotLoadedError()
+        raise ModelNotLoadedError(f"El modelo de {analysis_type.value} no está disponible")
 
     try:
         prediction = model.predict(image)
+        if analysis_type == AnalysisType.caries:
+            boxes = _caries_boxes(prediction)
+        else:
+            boxes = _gingivitis_boxes(prediction)
     except Exception as exc:
-        logger.exception("Falló la inferencia de caries")
+        logger.exception("Falló la inferencia de %s", analysis_type.value)
         raise InferenceError() from exc
 
+    return DetectionResponse(
+        analysis_type=analysis_type,
+        photo_type=photo_type,
+        diagnosis=analysis_type.value if boxes else "ninguna",
+        boxes=boxes,
+        image_width=w,
+        image_height=h,
+    )
+
+
+def _caries_boxes(prediction) -> list[BoundingBox]:
     boxes: list[BoundingBox] = []
     for coords, class_id, confidence in zip(
         prediction["boxes"], prediction["labels"], prediction["scores"], strict=True
@@ -52,11 +69,36 @@ def run_detection(
                 x1=x1, y1=y1, x2=x2, y2=y2,
             )
         )
+    return boxes
 
-    return DetectionResponse(
-        photo_type=photo_type,
-        diagnosis="caries" if boxes else "ninguna",
-        boxes=boxes,
-        image_width=w,
-        image_height=h,
-    )
+
+def _gingivitis_boxes(prediction) -> list[BoundingBox]:
+    if prediction.boxes is None or len(prediction.boxes) == 0:
+        return []
+    if prediction.masks is None:
+        raise ValueError("El modelo de segmentación devolvió detecciones sin máscaras")
+
+    contours = prediction.masks.xy
+    if len(contours) != len(prediction.boxes):
+        raise ValueError("La cantidad de máscaras no coincide con las detecciones")
+
+    boxes: list[BoundingBox] = []
+    for box, contour in zip(prediction.boxes, contours, strict=True):
+        confidence = float(box.conf.item())
+        if int(box.cls.item()) != 0 or confidence < settings.conf_threshold:
+            continue
+
+        x1, y1, x2, y2 = (round(float(value)) for value in box.xyxy[0].tolist())
+        polygon = [
+            PolygonPoint(x=round(float(x)), y=round(float(y)))
+            for x, y in contour
+        ]
+        boxes.append(
+            BoundingBox(
+                label="gingivitis",
+                confidence=round(confidence, 4),
+                x1=x1, y1=y1, x2=x2, y2=y2,
+                polygon=polygon if len(polygon) >= 3 else None,
+            )
+        )
+    return boxes

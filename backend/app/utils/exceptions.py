@@ -23,7 +23,7 @@ class ImageTooLargeError(DentalScreeningError):
 
 
 class ModelNotLoadedError(DentalScreeningError):
-    def __init__(self, message: str = "El modelo de caries no está disponible"):
+    def __init__(self, message: str = "El modelo de análisis no está disponible"):
         super().__init__(message, status_code=503)
 
 

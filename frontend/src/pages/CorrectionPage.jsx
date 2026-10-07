@@ -7,6 +7,7 @@ export default function CorrectionPage() {
   const navigate = useNavigate()
   const { state } = useLocation()
   const suggestions = state?.suggestions ?? ['Verifica la iluminación e intenta de nuevo.']
+  const analysisType = state?.analysisType === 'gingivitis' ? 'gingivitis' : 'caries'
 
   return (
     <main className="min-h-screen page-bg flex items-center justify-center p-4 animate-fade-in">
@@ -34,7 +35,7 @@ export default function CorrectionPage() {
           ))}
         </ul>
 
-        <Button onClick={() => navigate('/captura')}>
+        <Button onClick={() => navigate(`/captura?analysis=${analysisType}`)}>
           <RotateCcw className="w-4 h-4" />
           Volver a intentar
         </Button>

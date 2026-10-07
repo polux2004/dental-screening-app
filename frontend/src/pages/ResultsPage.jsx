@@ -1,5 +1,5 @@
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { ScanLine, Home, CheckCircle, AlertCircle, Scan } from 'lucide-react'
+import { ScanLine, Home, CheckCircle, AlertCircle, Scan, Activity } from 'lucide-react'
 import BoundingBoxOverlay from '../components/BoundingBoxOverlay'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
@@ -7,11 +7,13 @@ import Card from '../components/ui/Card'
 const DIAGNOSIS_LABEL = {
   ninguna:    'Sin hallazgos',
   caries:     'Caries detectada',
+  gingivitis: 'Posibles indicios de gingivitis',
 }
 
 const DIAGNOSIS_STYLE = {
   ninguna:    { chip: 'bg-emerald-50 text-emerald-700 border-emerald-100', icon: CheckCircle },
   caries:     { chip: 'bg-red-50 text-red-700 border-red-100',            icon: AlertCircle },
+  gingivitis: { chip: 'bg-red-50 text-red-700 border-red-100',            icon: AlertCircle },
 }
 
 function ResultPanel({ title, icon: Icon, iconStyle, result, imageUrl }) {
@@ -55,6 +57,8 @@ export default function ResultsPage() {
   if (!state?.result) return <Navigate to="/" replace />
 
   const { result, imageUrl } = state
+  const isGingivitis = result.analysis_type === 'gingivitis'
+  const title = isGingivitis ? 'Gingivitis' : 'Caries'
 
   return (
     <main className="min-h-screen page-bg flex flex-col items-center p-4 gap-4 animate-fade-in">
@@ -65,14 +69,14 @@ export default function ResultsPage() {
           <p className="text-xs font-semibold text-teal-400 uppercase tracking-wide">Resultado del análisis</p>
         </div>
         <h1 className="text-xl font-bold text-slate-900 mb-6">
-          Caries
+          {title}
         </h1>
 
         <div className="mb-6">
           <ResultPanel
-            title="Caries"
-            icon={Scan}
-            iconStyle={{ bg: 'bg-teal-50', border: 'border-teal-100', text: 'text-teal-600' }}
+            title={title}
+            icon={isGingivitis ? Activity : Scan}
+            iconStyle={isGingivitis ? { bg: 'bg-cyan-50', border: 'border-cyan-100', text: 'text-cyan-600' } : { bg: 'bg-teal-50', border: 'border-teal-100', text: 'text-teal-600' }}
             result={result}
             imageUrl={imageUrl}
           />

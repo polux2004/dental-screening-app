@@ -1,22 +1,29 @@
 import { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { detectImage } from '../services/api'
-import { ImagePlus, X, Loader2, Scan } from 'lucide-react'
+import { ImagePlus, X, Loader2, Scan, Activity } from 'lucide-react'
 import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 
-const PHOTO_OPTIONS = [
+const CARIES_PHOTO_OPTIONS = [
   { value: 'mandibular', label: 'Mandibular' },
   { value: 'maxilar', label: 'Maxilar' },
 ]
 
-const ACCEPT = 'image/jpeg,image/png,image/webp'
+const GINGIVITIS_PHOTO_OPTIONS = [
+  { value: 'frontal', label: 'Frontal' },
+]
+
+const ACCEPT = '.jpg,.jpeg,.png,image/jpeg,image/png'
 
 export default function CapturePage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const analysisType = searchParams.get('analysis') === 'gingivitis' ? 'gingivitis' : 'caries'
+  const photoOptions = analysisType === 'gingivitis' ? GINGIVITIS_PHOTO_OPTIONS : CARIES_PHOTO_OPTIONS
 
   const inputRef = useRef(null)
-  const [photoType, setPhotoType] = useState(PHOTO_OPTIONS[0].value)
+  const [photoType, setPhotoType] = useState(photoOptions[0].value)
   const [preview, setPreview]     = useState(null)
   const [file, setFile]           = useState(null)
   const [loading, setLoading]     = useState(false)
@@ -25,6 +32,13 @@ export default function CapturePage() {
   function handleFileChange(e) {
     const selected = e.target.files?.[0]
     if (!selected) return
+    if (!/\.(jpe?g|png)$/i.test(selected.name)) {
+      setFile(null)
+      setPreview(null)
+      e.target.value = ''
+      setError('Solo se aceptan archivos JPG, JPEG o PNG.')
+      return
+    }
     setFile(selected)
     setPreview(URL.createObjectURL(selected))
     setError(null)
@@ -36,11 +50,11 @@ export default function CapturePage() {
     setError(null)
     try {
       const imageUrl = URL.createObjectURL(file)
-      const result   = await detectImage(file, photoType)
+      const result   = await detectImage(file, photoType, analysisType)
       navigate('/resultados', { state: { result, imageUrl } })
     } catch (err) {
       if (err?.suggestions) {
-        navigate('/correccion', { state: { suggestions: err.suggestions } })
+        navigate('/correccion', { state: { suggestions: err.suggestions, analysisType } })
       } else {
         setError(err?.error ?? 'Error al procesar la imagen.')
         setLoading(false)
@@ -52,11 +66,13 @@ export default function CapturePage() {
     <main className="min-h-screen page-bg flex flex-col items-center p-4 gap-4 animate-fade-in">
       <Card className="w-full max-w-md">
 
-        <div className="flex items-center gap-3 rounded-xl px-4 py-3 mb-5 bg-teal-50 border border-teal-100">
-          <Scan className="w-4 h-4 flex-shrink-0 text-teal-600" strokeWidth={1.8} />
+        <div className={`flex items-center gap-3 rounded-xl px-4 py-3 mb-5 ${analysisType === 'gingivitis' ? 'bg-cyan-50 border border-cyan-100' : 'bg-teal-50 border border-teal-100'}`}>
+          {analysisType === 'gingivitis'
+            ? <Activity className="w-4 h-4 flex-shrink-0 text-cyan-600" strokeWidth={1.8} />
+            : <Scan className="w-4 h-4 flex-shrink-0 text-teal-600" strokeWidth={1.8} />}
           <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-teal-600">Análisis de caries</p>
-            <p className="text-xs text-slate-500">Sube una foto mandibular o maxilar.</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-teal-600">Análisis de {analysisType}</p>
+            <p className="text-xs text-slate-500">{analysisType === 'gingivitis' ? 'Sube una foto frontal de dientes y encías.' : 'Sube una foto mandibular o maxilar.'}</p>
           </div>
         </div>
 
@@ -68,7 +84,7 @@ export default function CapturePage() {
             Tipo de fotografía
           </label>
           <div className="flex flex-wrap gap-2">
-            {PHOTO_OPTIONS.map((pt) => (
+            {photoOptions.map((pt) => (
               <button
                 key={pt.value}
                 onClick={() => setPhotoType(pt.value)}
@@ -99,7 +115,7 @@ export default function CapturePage() {
                 <ImagePlus className="w-5 h-5 text-teal-500" strokeWidth={1.5} />
               </div>
               <span className="text-sm font-medium text-slate-600">Toca para seleccionar una foto</span>
-              <span className="text-xs text-slate-400">JPG, PNG o WEBP</span>
+              <span className="text-xs text-slate-400">JPG, JPEG o PNG</span>
             </>
           )}
         </button>
